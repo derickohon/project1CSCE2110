@@ -1,2 +1,2 @@
 # project1CSCE2110
-project
+Campus Resource Reservation System
