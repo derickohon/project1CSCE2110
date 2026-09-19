@@ -1,0 +1,15 @@
+R114|Study Room 114| Study Room|Available
+R127|Study Room 127| Study Room|Available
+R218|Study Room 218| Study Room|Available
+R304|Study Room 304| Study Room|Available
+L001|Dell Laptop 001|Laptop|Available
+L002|Dell Laptop 002|Laptop|Available
+L003|Dell Laptop 003|Laptop|Available
+C001|TI-84 Calculator 001|Calculator|Available
+C002|TI-84 Calculator 002|Calculator|Available
+LAB1|Chemistry Lab Kit 1|Lab Equipment|Available
+LAB2|Biology Lab Kit 2|Lab Equipment|Available
+LAB3|Physics Lab Kit 3|Lab Equipment|Available
+T001|Math Tutor 001|Tutor|Available
+T002|Science Tutor 002|Tutor|Available
+T003|English Tutor 003|Tutor|Available
