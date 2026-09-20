@@ -50,6 +50,7 @@ void CancellationHistoryStack::displayHistory() const {
 		cout << "  " << index << ". ";
 		current->data.display();
 		++index;
+		cout << "-----------------------------------" << endl;
 	}
 }
 

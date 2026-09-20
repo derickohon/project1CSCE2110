@@ -47,3 +47,11 @@ void Reservation::setStudentName(string name) { // Set the student name associat
 void Reservation::setReservationDate(string date) { // Set the reservation date
 	reservationDate = date;
 }
+
+void Reservation::display() const { // Display the reservation details
+	cout << "Reservation ID: " << reservationID << endl;
+	cout << "Resource ID: " << resourceID << endl;
+	cout << "Student ID: " << studentID << endl;
+	cout << "Student Name: " << studentName << endl;
+	cout << "Reservation Date: " << reservationDate << endl;
+}

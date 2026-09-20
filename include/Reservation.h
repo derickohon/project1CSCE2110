@@ -26,6 +26,8 @@ public:
 	void setStudentID(int id);
 	void setStudentName(string name);
 	void setReservationDate(string date);
+
+	void display() const;
 };
 
 #endif // RESERVATION_H

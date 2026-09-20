@@ -1,20 +1,37 @@
-#pragma once
+#include "ReservationManager.h"
 
-#include "CancellationHistoryStack.h"
-#include "Reservation.h"
+#include <iostream>
 
-// Teammates call recordCancellation() when a reservation is cancelled;
-// undoLastCancellation() restores the most recently cancelled reservation.
-class ReservationManager {
-private:
-	CancellationHistoryStack cancellationHistory;
+// Records a cancelled reservation by pushing it onto
+// the cancellation history stack.
+void ReservationManager::recordCancellation(const Reservation& reservation) {
+	cancellationHistory.push(reservation);
+}
 
-public:
-	ReservationManager() = default;
+// Restores the most recently cancelled reservation.
+// The restored reservation is returned through the reference parameter.
+bool ReservationManager::undoLastCancellation(Reservation& restoredReservation) {
+	if (cancellationHistory.isEmpty()) {
+		return false;
+	}
 
-	void recordCancellation(const Reservation& reservation);
-	bool undoLastCancellation(Reservation& restoredReservation);
-	void displayCancellationHistory() const;
-	bool hasCancellationHistory() const;
-	int cancellationHistoryCount() const;
-};
+	return cancellationHistory.pop(restoredReservation);
+}
+
+// Displays all cancelled reservations, with the
+// most recently cancelled reservation shown first.
+void ReservationManager::displayCancellationHistory() const {
+	cancellationHistory.displayHistory();
+}
+
+// Returns true if there is at least one cancelled
+// reservation in the history.
+bool ReservationManager::hasCancellationHistory() const {
+	return !cancellationHistory.isEmpty();
+}
+
+// Returns the number of reservations currently
+// stored in the cancellation history.
+int ReservationManager::cancellationHistoryCount() const {
+	return cancellationHistory.size();
+}
