@@ -1,6 +1,6 @@
 # project1CSCE2110
 Campus Resource Reservation System
-## Derick — cancellation history & complexity analysis
+Cancellation history & Complexity analysis
 
 ### Code (stack / reservation history)
 
