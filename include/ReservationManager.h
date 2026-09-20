@@ -3,7 +3,6 @@
 #include "CancellationHistoryStack.h"
 #include "Reservation.h"
 
-// Derick's module: cancellation / reservation history (stack) integration point.
 // Teammates call recordCancellation() when a reservation is cancelled;
 // undoLastCancellation() restores the most recently cancelled reservation.
 class ReservationManager {
