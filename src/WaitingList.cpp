@@ -1,4 +1,4 @@
-#include "WaitingList.h"
+#include "../include/WaitingList.h"
 #include <iostream>
 
 using namespace std;
