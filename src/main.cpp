@@ -134,16 +134,15 @@ static void viewResources() {
 
 int main() {
 	cout << "===== Campus Resource Reservation System =====\n";
-	cout << "1) Demo cancellation history / undo (stack)\n";
+	cout << "1) Cancellation History / Undo (stack)\n";
 	cout << "2) View Resources\n";
 	cout << "3) Create Reservation\n";
 	cout << "4) Cancel Reservation\n";
 	cout << "5) View Waitlist\n";
-	cout << "6) Undo Cancellation\n";
-	cout << "7) Search Reservations\n";
-	cout << "8) Sort Resources\n";
-	cout << "9) Generate Reports\n";
-	cout << "10) Exit\n";
+	cout << "6) Search Reservations\n";
+	cout << "7) Sort Resources\n";
+	cout << "8) Generate Reports\n";
+	cout << "9) Exit\n";
 	cout << endl;
 	cout << "Choice: ";
 
@@ -153,39 +152,147 @@ int main() {
 		cout << "Invalid input.\n";
 		return 1;
 	}
+
 	clearInputLine();
 
+	// ReservationManager needs to exist before case 1 uses it
+	ReservationManager manager;
+
 	switch (choice) {
-	case 1:
-		demoCancellationHistory();
+
+	case 1: {
+		int menu = 0;
+
+		do {
+			cout << "\n--- Cancellation History (Stack) ---\n";
+			cout << "1. Save a cancelled reservation\n";
+			cout << "2. Show cancellation history\n";
+			cout << "3. Undo last cancellation\n";
+			cout << "4. Go back\n";
+			cout << "Pick an option: ";
+
+			if (!(cin >> menu)) {
+				clearInputLine();
+				cout << "Invalid input. Please enter a number.\n";
+				continue;
+			}
+
+			clearInputLine();
+
+			if (menu == 1) {
+
+				Reservation r;
+
+				string resID;
+				string resResourceID;
+				string name;
+				string date;
+				int studentID;
+
+				cout << "Reservation ID: ";
+				getline(cin, resID);
+
+				cout << "Resource ID: ";
+				getline(cin, resResourceID);
+
+				cout << "Student ID (numbers only): ";
+				cin >> studentID;
+				clearInputLine();
+
+				cout << "Student name: ";
+				getline(cin, name);
+
+				cout << "Reservation date: ";
+				getline(cin, date);
+
+				r.setReservationID(resID);
+				r.setResourceID(resResourceID);
+				r.setStudentID(studentID);
+				r.setStudentName(name);
+				r.setReservationDate(date);
+
+				manager.recordCancellation(r);
+
+				cout << "Saved to Cancellation History.\n";
+			}
+
+			else if (menu == 2) {
+
+				cout << "\nCancellation history ("
+					<< manager.cancellationHistoryCount()
+					<< " total):\n";
+
+				if (manager.hasCancellationHistory()) {
+					manager.displayCancellationHistory();
+				}
+				else {
+					cout << "No cancellations saved yet.\n";
+				}
+			}
+
+			else if (menu == 3) {
+
+				Reservation restored;
+
+				bool worked = manager.undoLastCancellation(restored);
+
+				if (worked) {
+					cout << "Undo worked. This reservation was restored:\n";
+					restored.display();
+				}
+				else {
+					cout << "Cannot undo. History is empty.\n";
+				}
+			}
+
+			else if (menu == 4) {
+				cout << "Going back to main menu...\n";
+			}
+
+			else {
+				cout << "That option is not valid. Try again.\n";
+			}
+
+		} while (menu != 4);
+
 		break;
+	}
 	case 2:
 		viewResources();
 		break;
+
 	case 3:
 		cout << "Create Reservation selected.\n";
 		break;
+
 	case 4:
 		cout << "Cancel Reservation selected.\n";
 		break;
+
 	case 5:
 		cout << "View Waitlist selected.\n";
 		break;
+
 	case 6:
 		cout << "Undo Cancellation selected.\n";
 		break;
+
 	case 7:
 		cout << "Search Reservations selected.\n";
 		break;
+
 	case 8:
 		cout << "Sort Resources selected.\n";
 		break;
+
 	case 9:
 		cout << "Generate Reports selected.\n";
 		break;
+
 	case 10:
 		cout << "Goodbye.\n";
 		break;
+
 	default:
 		cout << "Unknown option.\n";
 		break;
