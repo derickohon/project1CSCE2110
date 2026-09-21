@@ -153,6 +153,96 @@ int main() {
 		clearInputLine();
 		cout << "Invalid input.\n";
 		return 1;
+
+	if (choice == 1) {
+		int menu = 0
+
+		do (
+			cout << "\n--- Cancellation History (Stack) ---\n";
+			cout << "1. Save a cancelled reservation\n";
+			cout << "2. Show cancellation history\n";
+			cout << "3. Undo last cancellation\n";
+			cout << "4. Go back\n";
+			cout << "Pick an option: ";
+
+			cin >> menu;
+			cin.ignore(numeric_limits<streamsize>::max(), '\n';
+
+			if (menu == 1) {
+				Reservation r;
+				string resID;
+				string resResourceID;
+				string name;
+				string date;
+				int studentID;
+
+				cout << "Reservation ID: ";
+				getline (cin, resID);
+
+				cout << "Resource ID: ";
+				getline (cin, resResourceID);
+
+				cout << "Student ID (numbers only): ";
+				cin >> studentID;
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+				cout << "Student name: ";
+				getline (cin, name);
+
+				cout << "Reservation date: ";
+				getline (cin, date);
+
+				r.setReservationID(resID);
+				r.setResourceID(resResourceID);
+				r.StudentID(studentID);
+				r.setStudentName(name);
+				r.setReservationDate(date);
+
+				manager.recordCancellation(r);
+				cout << " Saved to Cancellation History.\n";
+			}
+			else if (menu == 2) {
+				cout << "\nCancellation history (" << manager.cancellationHistoryCount()
+					<< " total):\n",
+				if (manager.hasCancellationHistory()) {
+					manager.displayCancellationHistory();
+				}
+				else {
+					cout << "No cancellations saved yet. \n";
+				}
+			}
+			else if (menu == 2) {
+					cout << "\nCancellation history (" << manager.cancellationHistoryCount()
+					     << " total):\n";
+					if (manager.hasCancellationHistory()) {
+						manager.displayCancellationHistory();
+					}
+					else {
+						cout << "No cancellations saved yet.\n";
+					}
+				}
+				else if (menu == 3) {
+					Reservation restored;
+					bool worked = manager.undoLastCancellation(restored);
+
+					if (worked == true) {
+						cout << "Undo worked. This reservation was restored:\n";
+						restored.display();
+					}
+					else {
+						cout << "Cannot undo. History is empty.\n";
+					}
+				}
+				else if (menu == 4) {
+					cout << "Going back to main menu...\n";
+				}
+				else {
+					cout << "That option is not valid. Try again.\n";
+				}
+
+			} while (menu != 4);
+		} 
+		
 	}
 	clearInputLine();
 
