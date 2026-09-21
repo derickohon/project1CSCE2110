@@ -2,6 +2,10 @@
 #include "Resource.h"
 #include "ReservationManager.h"
 
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <string>
@@ -64,6 +68,67 @@ static void viewResources() {
 	clearInputLine();
 	cout << "=== View Resources ===\n";
 	//open file and read resources from file
+	ifstream inputFile("data/resources.txt");
+	if (!inputFile.is_open()) {
+		cout << "Error: could not open data/resources.txt\n";
+		return;
+	}
+
+	// Initiate the vector to hold the resources and a string to hold each line read from the file
+	vector<Resource> resources;
+	string line;
+
+	// loop through each line of the file and parse the resource data
+	while (getline(inputFile, line)) {
+		if (line.empty()) {
+			continue;
+		}
+
+		stringstream ss(line);
+		string id, name, type, status;
+
+		getline(ss, id, '|');
+		getline(ss, name, '|');
+		getline(ss, type, '|');
+		getline(ss, status, '|');
+
+		// Skip malformed lines that are missing fields
+		if (id.empty() || name.empty() || type.empty() || status.empty()) {
+			continue;
+		}
+
+		Resource resource;
+		resource.setResourceID(id);
+		resource.setResourceName(name);
+		resource.setResourceType(type);
+		resource.setAvailabilityStatus(status);
+
+		resources.push_back(resource);
+	}
+	inputFile.close();
+
+	// Display the resources in a formatted table
+	if (resources.empty()) {
+		cout << "No resources found.\n";
+		return;
+	}
+
+	cout << left
+		<< setw(10) << "ID"
+		<< setw(28) << "Name"
+		<< setw(15) << "Type"
+		<< "Status" << endl;
+	cout << string(61, '-') << endl;
+
+	for (Resource& r : resources) {
+		cout << left
+			<< setw(10) << r.getResourceID()
+			<< setw(28) << r.getResourceName()
+			<< setw(15) << r.getResourceType()
+			<< r.getAvailabilityStatus() << endl;
+	}
+
+	cout << "Total resources: " << resources.size() << endl;
 }
 
 // ----------------------------------------------
@@ -96,8 +161,7 @@ int main() {
 		demoCancellationHistory();
 		break;
 	case 2:
-		cout << "View Resources selected.\n";
-
+		viewResources();
 		break;
 	case 3:
 		cout << "Create Reservation selected.\n";
