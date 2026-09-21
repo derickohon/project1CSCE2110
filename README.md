@@ -1,48 +1,35 @@
-# project1CSCE2110
-Campus Resource Reservation System
-Cancellation history & Complexity analysis
+# Campus Resource Reservation System
 
-### Code (stack / reservation history)
+A menu-driven C++ console app for reserving campus resources (study rooms, laptops, calculators, lab equipment, tutoring) and managing reservations, waiting lists, cancellations, and reports.
 
-| File | Purpose |
-|------|---------|
-| `include/CancellationHistoryStack.h` | Stack ADT for cancelled reservations |
-| `src/CancellationHistoryStack.cpp` | `push`, `pop` (undo), `displayHistory`, `size` |
-| `include/ReservationManager.h` | Team integration API |
-| `src/ReservationManager.cpp` | `recordCancellation`, `undoLastCancellation`, `displayCancellationHistory` |
+## Features
 
-**When a teammate cancels a reservation:** remove it from the active linked list, then call:
+- **View / Sort Resources** — displays all resources; sorting is done with a hand-implemented Quick Sort (by ID or Name).
+- **Create / Cancel Reservation** — reserves an available resource for a student, or cancels an existing reservation by ID.
+- **Waiting List** — if a resource is unavailable, students can join a FIFO queue; cancelling a reservation automatically pulls the next matching student off the waitlist.
+- **Cancellation History / Undo** — every cancellation is pushed onto a stack, so the most recent one can be undone.
+- **Search Reservations** — linear search by Reservation ID, Student ID, or Student Name.
+- **Reports** — current availability, active reservation count, most frequently reserved resource, and waitlist summary.
 
-```cpp
-manager.recordCancellation(cancelledReservation);
+## Data Structures
+
+- `vector<Resource>` and `vector<Reservation>` — resource inventory and active reservations.
+- `CancellationHistoryStack` — custom linked-list stack for cancellation/undo.
+- `WaitingList` — custom linked-list queue for FIFO waiting requests.
+
+## Data Files
+
+Resources and reservations are stored as pipe-delimited text files (`data/resources.txt`, `data/reservations.txt`) and are rewritten automatically whenever a reservation is created or cancelled.
+
+## Build & Run
+
+From the `Project1/` directory (so relative paths to `data/` resolve correctly):
+
+```bash
+g++ -std=c++17 -o app src/*.cpp
+./app
 ```
 
-**Undo:** pop the latest cancellation and re-insert into the active list:
+## Known Limitation
 
-```cpp
-Reservation restored;
-if (manager.undoLastCancellation(restored)) {
-    // activeList.insert(restored);  // teammate's linked-list module
-}
-```
-
-**Show history:** `manager.displayCancellationHistory();`
-
-Run the module demo from `main.cpp` (menu option 1).
-
-### Complexity analysis
-
-See `docs/ComplexityAnalysis.md` (Big-O for insert/remove, queue, undo, display).
-
-### Build (MinGW / g++)
-
-```bat
-compile.bat
-campus_reservation.exe
-```
-
-Or:
-
-```bat
-g++ -std=c++17 -I include src\main.cpp src\Reservation.cpp src\Resource.cpp src\CancellationHistoryStack.cpp src\ReservationManager.cpp -o campus_reservation.exe
-```
+Most logic currently lives in `main.cpp` rather than being split into dedicated classes — a cleaner version would move this into the relevant class files.
