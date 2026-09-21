@@ -1,7 +1,7 @@
-R114|Study Room 114| Study Room|Available
-R127|Study Room 127| Study Room|Available
-R218|Study Room 218| Study Room|Available
-R304|Study Room 304| Study Room|Available
+R114|Study Room 114|Study Room|Available
+R127|Study Room 127|Study Room|Available
+R218|Study Room 218|Study Room|Available
+R304|Study Room 304|Study Room|Available
 L001|Dell Laptop 001|Laptop|Available
 L002|Dell Laptop 002|Laptop|Available
 L003|Dell Laptop 003|Laptop|Available

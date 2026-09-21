@@ -1,5 +1,9 @@
 #include "Reservation.h"
 
+#include <iostream>
+
+using namespace std;
+
 Reservation::Reservation() { // Constructor to initialize reservation values
 	reservationID = "";
 	resourceID = "";

@@ -1,5 +1,6 @@
 #include "Reservation.h"
 #include "Resource.h"
+#include "ReservationManager.h"
 
 #include <iostream>
 #include <limits>
@@ -57,10 +58,29 @@ static void demoCancellationHistory() {
 	manager.displayCancellationHistory();
 }
 
+// ----------------------------------------------
+
+static void viewResources() {
+	clearInputLine();
+	cout << "=== View Resources ===\n";
+	//open file and read resources from file
+}
+
+// ----------------------------------------------
+
 int main() {
-	cout << "Campus Resource Reservation System — Milestone 1\n";
+	cout << "===== Campus Resource Reservation System =====\n";
 	cout << "1) Demo cancellation history / undo (stack)\n";
-	cout << "2) Exit\n";
+	cout << "2) View Resources\n";
+	cout << "3) Create Reservation\n";
+	cout << "4) Cancel Reservation\n";
+	cout << "5) View Waitlist\n";
+	cout << "6) Undo Cancellation\n";
+	cout << "7) Search Reservations\n";
+	cout << "8) Sort Resources\n";
+	cout << "9) Generate Reports\n";
+	cout << "10) Exit\n";
+	cout << endl;
 	cout << "Choice: ";
 
 	int choice = 0;
@@ -76,6 +96,31 @@ int main() {
 		demoCancellationHistory();
 		break;
 	case 2:
+		cout << "View Resources selected.\n";
+
+		break;
+	case 3:
+		cout << "Create Reservation selected.\n";
+		break;
+	case 4:
+		cout << "Cancel Reservation selected.\n";
+		break;
+	case 5:
+		cout << "View Waitlist selected.\n";
+		break;
+	case 6:
+		cout << "Undo Cancellation selected.\n";
+		break;
+	case 7:
+		cout << "Search Reservations selected.\n";
+		break;
+	case 8:
+		cout << "Sort Resources selected.\n";
+		break;
+	case 9:
+		cout << "Generate Reports selected.\n";
+		break;
+	case 10:
 		cout << "Goodbye.\n";
 		break;
 	default:
