@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Project Files">
+      <UniqueIdentifier>{f998f872-d589-481e-8393-6b8d6a0307d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project Files\data">
+      <UniqueIdentifier>{b7fd1832-fc1f-4654-9df6-17ea2ee55b67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project Files\src">
+      <UniqueIdentifier>{dc6b85e9-bb29-4279-9750-b0d0f7d4d051}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project Files\include">
+      <UniqueIdentifier>{1d06b63d-22b3-4391-af50-62a5484594de}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="data\reservations.txt">
+      <Filter>Project Files\data</Filter>
+    </Text>
+    <Text Include="data\resources.txt">
+      <Filter>Project Files\data</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\CancellationHistoryStack.h">
+      <Filter>Project Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Reservation.h">
+      <Filter>Project Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ReservationManager.h">
+      <Filter>Project Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Resource.h">
+      <Filter>Project Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\WaitingList.h">
+      <Filter>Project Files\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\CancellationHistoryStack.cpp">
+      <Filter>Project Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Project Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Reservation.cpp">
+      <Filter>Project Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ReservationManager.cpp">
+      <Filter>Project Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Resource.cpp">
+      <Filter>Project Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\WaitingList.cpp">
+      <Filter>Project Files\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore">
+      <Filter>Project Files</Filter>
+    </None>
+    <None Include="compile.bat">
+      <Filter>Project Files</Filter>
+    </None>
+    <None Include="ComplexityAnalysis.md">
+      <Filter>Project Files</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>Project Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

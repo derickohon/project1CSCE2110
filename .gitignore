@@ -1,0 +1,17 @@
+# Compiled programs
+*.exe
+*.out
+*.out
+*.obj
+
+# Build folders
+build/
+bin/
+
+# VS code
+.vscode/
+.vs/
+
+# OS files
+.DS_Store
+Thumbs.db
