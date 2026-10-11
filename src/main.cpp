@@ -102,14 +102,14 @@ static bool saveResources(const string& filepath, vector<Resource>& resources) {
 // File I/O helpers (Reservations)
 // =====================================================
 
-// Loads active reservations from a pipe-delimited file into a vector.
-static vector<Reservation> loadReservations(const string& filepath) {
-	vector<Reservation> reservations;
+// Loads active reservations from a pipe-delimited file into the
+// manager's reservation linked list.
+static void loadReservations(const string& filepath, ReservationManager& manager) {
 
 	ifstream inputFile(filepath);
 	if (!inputFile.is_open()) {
 		// Not fatal - the file may not exist yet on a fresh checkout.
-		return reservations;
+		return;
 	}
 
 	string line;
@@ -139,28 +139,27 @@ static vector<Reservation> loadReservations(const string& filepath) {
 		reservation.setStudentName(studentName);
 		reservation.setReservationDate(date);
 
-		reservations.push_back(reservation);
+		manager.addReservation(reservation);
 	}
 
 	inputFile.close();
-	return reservations;
 }
 
 // Writes the current active reservation list back out to disk.
-static bool saveReservations(const string& filepath, vector<Reservation>& reservations) {
+static bool saveReservations(const string& filepath, ReservationManager& manager) {
 	ofstream outputFile(filepath);
 	if (!outputFile.is_open()) {
 		cout << "Error: could not save to " << filepath << "\n";
 		return false;
 	}
 
-	for (Reservation& r : reservations) {
+	manager.forEachReservation([&](Reservation& r) {
 		outputFile << r.getReservationID() << "|"
 			<< r.getResourceID() << "|"
 			<< r.getStudentID() << "|"
 			<< r.getStudentName() << "|"
 			<< r.getReservationDate() << "\n";
-	}
+		});
 
 	outputFile.close();
 	return true;
@@ -180,32 +179,22 @@ static Resource* findResourceByID(vector<Resource>& resources, const string& id)
 	return nullptr;
 }
 
-// Finds the index of a reservation by ID. Returns -1 if no match is found.
-static int findReservationIndexByID(vector<Reservation>& reservations, const string& id) {
-	for (size_t i = 0; i < reservations.size(); ++i) {
-		if (reservations[i].getReservationID() == id) {
-			return static_cast<int>(i);
-		}
-	}
-	return -1;
-}
-
 // Generates the next unique reservation ID (RES001, RES002, ...) by
 // scanning the currently loaded reservations for the highest suffix used.
-static string generateReservationID(const vector<Reservation>& reservations) {
+static string generateReservationID(ReservationManager& manager) {
 	static int nextNumber = 0;
 
 	if (nextNumber == 0) {
 		int highest = 0;
-		for (const Reservation& r : reservations) {
-			string id = const_cast<Reservation&>(r).getReservationID();
+		manager.forEachReservation([&](Reservation& r) {
+			string id = r.getReservationID();
 			if (id.rfind("RES", 0) == 0) {
 				int value = atoi(id.substr(3).c_str());
 				if (value > highest) {
 					highest = value;
 				}
 			}
-		}
+			});
 		nextNumber = highest;
 	}
 
@@ -284,7 +273,7 @@ static void viewResources(vector<Resource>& resources) {
 // Menu Option 3: Create Reservation
 // =====================================================
 
-static void createReservation(vector<Resource>& resources, vector<Reservation>& reservations) {
+static void createReservation(vector<Resource>& resources, ReservationManager& manager) {
 	cout << "\n=== Create Reservation ===\n";
 
 	string resourceID;
@@ -321,17 +310,17 @@ static void createReservation(vector<Resource>& resources, vector<Reservation>& 
 	getline(cin, date);
 
 	Reservation reservation;
-	reservation.setReservationID(generateReservationID(reservations));
+	reservation.setReservationID(generateReservationID(manager));
 	reservation.setResourceID(resourceID);
 	reservation.setStudentID(studentID);
 	reservation.setStudentName(studentName);
 	reservation.setReservationDate(date);
 
-	reservations.push_back(reservation);
+	manager.addReservation(reservation);
 	resource->setAvailabilityStatus("Reserved");
 
 	saveResources(RESOURCES_FILE, resources);
-	saveReservations(RESERVATIONS_FILE, reservations);
+	saveReservations(RESERVATIONS_FILE, manager);
 
 	cout << "Reservation Created Successfully. (Reservation ID: "
 		<< reservation.getReservationID() << ")\n";
@@ -348,7 +337,7 @@ static void createReservation(vector<Resource>& resources, vector<Reservation>& 
 static bool assignNextWaitingStudent(
 	WaitingList& waitingList,
 	vector<Resource>& resources,
-	vector<Reservation>& reservations,
+	ReservationManager& manager,
 	const string& resourceID) {
 
 	vector<WaitingRequest> skipped;
@@ -358,13 +347,13 @@ static bool assignNextWaitingStudent(
 	while (waitingList.removeStudent(current)) {
 		if (!assigned && current.resourceID == resourceID) {
 			Reservation reservation;
-			reservation.setReservationID(generateReservationID(reservations));
+			reservation.setReservationID(generateReservationID(manager));
 			reservation.setResourceID(current.resourceID);
 			reservation.setStudentID(current.studentID);
 			reservation.setStudentName(current.studentName);
 			reservation.setReservationDate("Auto-assigned from waiting list");
 
-			reservations.push_back(reservation);
+			manager.addReservation(reservation);
 
 			Resource* resource = findResourceByID(resources, resourceID);
 			if (resource != nullptr) {
@@ -393,7 +382,6 @@ static bool assignNextWaitingStudent(
 
 static void cancelReservation(
 	vector<Resource>& resources,
-	vector<Reservation>& reservations,
 	WaitingList& waitingList,
 	ReservationManager& manager) {
 
@@ -403,16 +391,16 @@ static void cancelReservation(
 	cout << "Reservation ID: ";
 	getline(cin, reservationID);
 
-	int index = findReservationIndexByID(reservations, reservationID);
-	if (index == -1) {
+	Reservation* found = manager.findReservation(reservationID);
+	if (found == nullptr) {
 		cout << "Error: no reservation found with ID \"" << reservationID << "\".\n";
 		return;
 	}
 
-	Reservation cancelled = reservations[index];
-	reservations.erase(reservations.begin() + index);
-
-	manager.recordCancellation(cancelled);
+	// Copy it first: cancelReservation() deletes the list node and
+	// pushes the reservation onto the cancellation history stack.
+	Reservation cancelled = *found;
+	manager.cancelReservation(reservationID);
 
 	cout << "Reservation Cancelled.\n";
 	cout << "Added to cancellation history.\n";
@@ -422,7 +410,7 @@ static void cancelReservation(
 		resource->setAvailabilityStatus("Available");
 
 		bool assigned = assignNextWaitingStudent(
-			waitingList, resources, reservations, cancelled.getResourceID());
+			waitingList, resources, manager, cancelled.getResourceID());
 
 		if (!assigned) {
 			cout << "Resource \"" << cancelled.getResourceID()
@@ -431,7 +419,7 @@ static void cancelReservation(
 	}
 
 	saveResources(RESOURCES_FILE, resources);
-	saveReservations(RESERVATIONS_FILE, reservations);
+	saveReservations(RESERVATIONS_FILE, manager);
 }
 
 // =====================================================
@@ -477,7 +465,7 @@ static void joinWaitlist(vector<Resource>& resources, WaitingList& waitingList) 
 // Menu Option 6: Search Reservations
 // =====================================================
 
-static void searchReservations(vector<Reservation>& reservations) {
+static void searchReservations(ReservationManager& manager) {
 	cout << "\n=== Search Reservations ===\n";
 	cout << "1. Search by Reservation ID\n";
 	cout << "2. Search by Student ID\n";
@@ -500,11 +488,11 @@ static void searchReservations(vector<Reservation>& reservations) {
 		getline(cin, id);
 
 		// Linear search by reservation ID.
-		for (Reservation& r : reservations) {
+		manager.forEachReservation([&](Reservation& r) {
 			if (r.getReservationID() == id) {
 				matches.push_back(r);
 			}
-		}
+			});
 	}
 	else if (option == 2) {
 		int studentID = 0;
@@ -517,11 +505,11 @@ static void searchReservations(vector<Reservation>& reservations) {
 		clearInputLine();
 
 		// Linear search by student ID.
-		for (Reservation& r : reservations) {
+		manager.forEachReservation([&](Reservation& r) {
 			if (r.getStudentID() == studentID) {
 				matches.push_back(r);
 			}
-		}
+			});
 	}
 	else if (option == 3) {
 		string name;
@@ -529,11 +517,11 @@ static void searchReservations(vector<Reservation>& reservations) {
 		getline(cin, name);
 
 		// Linear search by student name.
-		for (Reservation& r : reservations) {
+		manager.forEachReservation([&](Reservation& r) {
 			if (r.getStudentName() == name) {
 				matches.push_back(r);
 			}
-		}
+			});
 	}
 	else {
 		cout << "That option is not valid.\n";
@@ -623,7 +611,7 @@ static void sortResourcesMenu(vector<Resource>& resources) {
 
 static void generateReports(
 	vector<Resource>& resources,
-	vector<Reservation>& reservations,
+	ReservationManager& manager,
 	const WaitingList& waitingList) {
 
 	cout << "\n=== Generate Reports ===\n";
@@ -647,14 +635,14 @@ static void generateReports(
 
 	// --- Number of active reservations ---
 	cout << "\n-- Active Reservations --\n";
-	cout << "Total active reservations: " << reservations.size() << endl;
+	cout << "Total active reservations: " << manager.reservationCount() << endl;
 
 	// --- Most frequently reserved resource ---
 	// Frequency count uses a map keyed by resource ID.
 	map<string, int> frequency;
-	for (Reservation& r : reservations) {
+	manager.forEachReservation([&](Reservation& r) {
 		frequency[r.getResourceID()]++;
-	}
+		});
 
 	cout << "\n-- Most Frequently Reserved Resources --\n";
 	if (frequency.empty()) {
@@ -687,9 +675,9 @@ static void generateReports(
 int main() {
 	// Loads last saved datawhenever they change.
 	vector<Resource> resources = loadResources(RESOURCES_FILE);
-	vector<Reservation> reservations = loadReservations(RESERVATIONS_FILE);
 	WaitingList waitingList;
 	ReservationManager manager;
+	loadReservations(RESERVATIONS_FILE, manager);
 
 	int choice = 0;
 	bool exitRequested = false;
@@ -722,10 +710,9 @@ int main() {
 
 			do {
 				cout << "\n--- Cancellation History (Stack) ---\n";
-				cout << "1. Save a cancelled reservation\n";
-				cout << "2. Show cancellation history\n";
-				cout << "3. Undo last cancellation\n";
-				cout << "4. Go back\n";
+				cout << "1. Show cancellation history\n";
+				cout << "2. Undo last cancellation\n";
+				cout << "3. Go back\n";
 				cout << "Pick an option: ";
 
 				if (!(cin >> menu)) {
@@ -737,43 +724,6 @@ int main() {
 				clearInputLine();
 
 				if (menu == 1) {
-
-					Reservation r;
-
-					string resID;
-					string resResourceID;
-					string name;
-					string date;
-					int studentID;
-
-					cout << "Reservation ID: ";
-					getline(cin, resID);
-
-					cout << "Resource ID: ";
-					getline(cin, resResourceID);
-
-					cout << "Student ID (numbers only): ";
-					cin >> studentID;
-					clearInputLine();
-
-					cout << "Student name: ";
-					getline(cin, name);
-
-					cout << "Reservation date: ";
-					getline(cin, date);
-
-					r.setReservationID(resID);
-					r.setResourceID(resResourceID);
-					r.setStudentID(studentID);
-					r.setStudentName(name);
-					r.setReservationDate(date);
-
-					manager.recordCancellation(r);
-
-					cout << "Saved to Cancellation History.\n";
-				}
-
-				else if (menu == 2) {
 
 					cout << "\nCancellation history ("
 						<< manager.cancellationHistoryCount()
@@ -787,22 +737,45 @@ int main() {
 					}
 				}
 
-				else if (menu == 3) {
+				else if (menu == 2) {
 
-					Reservation restored;
+					Reservation last;
 
-					bool worked = manager.undoLastCancellation(restored);
-
-					if (worked) {
-						cout << "Undo worked. This reservation was restored:\n";
-						restored.display();
+					if (!manager.lastCancellation(last)) {
+						cout << "Cannot undo. History is empty.\n";
 					}
 					else {
-						cout << "Cannot undo. History is empty.\n";
+						// The resource must still be free, otherwise restoring the
+						// reservation would double-book it (for example, a waiting-list
+						// student may have been assigned to it after the cancellation).
+						Resource* resource = findResourceByID(resources, last.getResourceID());
+
+						if (resource == nullptr) {
+							cout << "Cannot undo. Resource \"" << last.getResourceID()
+								<< "\" no longer exists.\n";
+						}
+						else if (resource->getAvailabilityStatus() != "Available") {
+							cout << "Cannot undo. Resource \"" << last.getResourceID()
+								<< "\" is now " << resource->getAvailabilityStatus()
+								<< " (reserved by someone else).\n";
+						}
+						else {
+							Reservation restored;
+							manager.undoLastCancellation(restored);   // stack -> active list
+							resource->setAvailabilityStatus("Reserved");
+
+							saveResources(RESOURCES_FILE, resources);
+							saveReservations(RESERVATIONS_FILE, manager);
+
+							cout << "Undo worked. This reservation was restored:\n";
+							restored.display();
+							cout << "Resource \"" << restored.getResourceID()
+								<< "\" is marked Reserved again.\n";
+						}
 					}
 				}
 
-				else if (menu == 4) {
+				else if (menu == 3) {
 					cout << "Going back to main menu...\n";
 				}
 
@@ -810,7 +783,7 @@ int main() {
 					cout << "That option is not valid. Try again.\n";
 				}
 
-			} while (menu != 4);
+			} while (menu != 3);
 
 			break;
 		}
@@ -819,11 +792,11 @@ int main() {
 			break;
 
 		case 3:
-			createReservation(resources, reservations);
+			createReservation(resources, manager);
 			break;
 
 		case 4:
-			cancelReservation(resources, reservations, waitingList, manager);
+			cancelReservation(resources, waitingList, manager);
 			break;
 
 		case 5: {
@@ -850,7 +823,7 @@ int main() {
 		}
 
 		case 6:
-			searchReservations(reservations);
+			searchReservations(manager);
 			break;
 
 		case 7:
@@ -858,7 +831,7 @@ int main() {
 			break;
 
 		case 8:
-			generateReports(resources, reservations, waitingList);
+			generateReports(resources, manager, waitingList);
 			break;
 
 		case 9:
@@ -873,7 +846,7 @@ int main() {
 	}
 
 	saveResources(RESOURCES_FILE, resources);
-	saveReservations(RESERVATIONS_FILE, reservations);
+	saveReservations(RESERVATIONS_FILE, manager);
 
 	return 0;
 }
