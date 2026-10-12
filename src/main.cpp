@@ -351,7 +351,7 @@ static bool assignNextWaitingStudent(
 			reservation.setResourceID(current.resourceID);
 			reservation.setStudentID(current.studentID);
 			reservation.setStudentName(current.studentName);
-			reservation.setReservationDate("Auto-assigned from waiting list");
+			reservation.setReservationDate(current.waitingDate);
 
 			manager.addReservation(reservation);
 
@@ -374,7 +374,7 @@ static bool assignNextWaitingStudent(
 	// Put everyone who wasn't assigned back into the queue, in the
 	// same relative order they were in before.
 	for (WaitingRequest& req : skipped) {
-		waitingList.addStudent(req.studentID, req.studentName, req.resourceID);
+		waitingList.addStudent(req.studentID, req.studentName, req.resourceID, req.waitingDate);
 	}
 
 	return assigned;
@@ -457,7 +457,11 @@ static void joinWaitlist(vector<Resource>& resources, WaitingList& waitingList) 
 	cout << "Student Name: ";
 	getline(cin, studentName);
 
-	waitingList.addStudent(studentID, studentName, resourceID);
+	string waitingDate;
+	cout << "Requested Date (YYYY-MM-DD): ";
+	getline(cin, waitingDate);
+
+	waitingList.addStudent(studentID, studentName, resourceID, waitingDate);
 	cout << "Added to the waiting list for \"" << resourceID << "\".\n";
 }
 
