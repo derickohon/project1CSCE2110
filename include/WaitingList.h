@@ -13,7 +13,6 @@ struct WaitingRequest {
     string waitingDate;
 
     WaitingRequest();
-    WaitingRequest(int id, string name, string resource);
     WaitingRequest(int id, string name, string resource, string date);
 };
 
@@ -37,7 +36,6 @@ public:
     WaitingList(const WaitingList&) = delete;
     WaitingList& operator=(const WaitingList&) = delete;
 
-    void addStudent(int studentID, string studentName, string resourceID);
     void addStudent(int studentID, string studentName, string resourceID, string waitingDate);
 
     bool removeStudent(WaitingRequest& request);

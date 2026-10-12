@@ -11,13 +11,6 @@ WaitingRequest::WaitingRequest() {
     waitingDate = "";
 }
 
-WaitingRequest::WaitingRequest(int id, string name, string resource) {
-    studentID = id;
-    studentName = name;
-    resourceID = resource;
-    waitingDate = "";
-}
-
 WaitingRequest::WaitingRequest(int id, string name, string resource, string date) {
     studentID = id;
     studentName = name;
@@ -38,10 +31,6 @@ WaitingList::WaitingList() {
 
 WaitingList::~WaitingList() {
     clear();
-}
-
-void WaitingList::addStudent(int studentID, string studentName, string resourceID) {
-    addStudent(studentID, studentName, resourceID, "");
 }
 
 void WaitingList::addStudent(int studentID, string studentName, string resourceID, string waitingDate) {
