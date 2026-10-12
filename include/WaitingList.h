@@ -1,3 +1,4 @@
+
 #ifndef WAITINGLIST_H
 #define WAITINGLIST_H
 
@@ -5,17 +6,17 @@
 
 using namespace std;
 
-// Information Stored about one student
 struct WaitingRequest {
     int studentID;
     string studentName;
     string resourceID;
+    string waitingDate;
 
     WaitingRequest();
     WaitingRequest(int id, string name, string resource);
+    WaitingRequest(int id, string name, string resource, string date);
 };
 
-// Used node by the waiting-list linked queue
 struct WaitingNode {
     WaitingRequest request;
     WaitingNode* next;
@@ -23,8 +24,6 @@ struct WaitingNode {
     WaitingNode(WaitingRequest req);
 };
 
-// Manages students waiting unavailable resources by that Queue.
-// FIFO (First In, First Out) was processed.
 class WaitingList {
 private:
     WaitingNode* front;
@@ -32,30 +31,23 @@ private:
     int count;
 
 public:
-    // Constructor
     WaitingList();
-
-    // Destructor
     ~WaitingList();
 
-    // Adds a student to the back of the waiting list.
-    void addStudent(int studentID, string studentName, string resourceID);
+    WaitingList(const WaitingList&) = delete;
+    WaitingList& operator=(const WaitingList&) = delete;
 
-    // Removes the student at the front of the waiting list.
-    // Returns false if the waiting list is empty.
+    void addStudent(int studentID, string studentName, string resourceID);
+    void addStudent(int studentID, string studentName, string resourceID, string waitingDate);
+
     bool removeStudent(WaitingRequest& request);
 
-    // Returns true if there are no students waiting.
     bool isEmpty() const;
-
-    // Returns the number of students currently waiting.
     int size() const;
 
-    // Displays all students in FIFO order.
     void display() const;
-
-    // Removes nodes from waiting list.
     void clear();
 };
 
-#endif // WAITINGLIST_H
+#endif
+
