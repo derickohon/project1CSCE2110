@@ -1,28 +1,34 @@
+
 #include "../include/WaitingList.h"
 #include <iostream>
 
 using namespace std;
 
-
 WaitingRequest::WaitingRequest() {
     studentID = 0;
     studentName = "";
     resourceID = "";
+    waitingDate = "";
 }
-
 
 WaitingRequest::WaitingRequest(int id, string name, string resource) {
     studentID = id;
     studentName = name;
     resourceID = resource;
+    waitingDate = "";
 }
 
+WaitingRequest::WaitingRequest(int id, string name, string resource, string date) {
+    studentID = id;
+    studentName = name;
+    resourceID = resource;
+    waitingDate = date;
+}
 
 WaitingNode::WaitingNode(WaitingRequest req) {
     request = req;
     next = nullptr;
 }
-
 
 WaitingList::WaitingList() {
     front = nullptr;
@@ -30,24 +36,24 @@ WaitingList::WaitingList() {
     count = 0;
 }
 
-
 WaitingList::~WaitingList() {
     clear();
 }
 
-
 void WaitingList::addStudent(int studentID, string studentName, string resourceID) {
-    WaitingRequest request(studentID, studentName, resourceID);
+    addStudent(studentID, studentName, resourceID, "");
+}
+
+void WaitingList::addStudent(int studentID, string studentName, string resourceID, string waitingDate) {
+    WaitingRequest request(studentID, studentName, resourceID, waitingDate);
 
     WaitingNode* newNode = new WaitingNode(request);
 
-    
     if (isEmpty()) {
         front = newNode;
         rear = newNode;
     }
     else {
-    
         rear->next = newNode;
         rear = newNode;
     }
@@ -55,15 +61,13 @@ void WaitingList::addStudent(int studentID, string studentName, string resourceI
     count++;
 }
 
-
 bool WaitingList::removeStudent(WaitingRequest& request) {
-    // Cannot remove a student from an empty queue.
     if (isEmpty()) {
         return false;
     }
 
     WaitingNode* temp = front;
- 
+
     request = temp->request;
 
     front = front->next;
@@ -71,7 +75,7 @@ bool WaitingList::removeStudent(WaitingRequest& request) {
     delete temp;
     count--;
 
-     if (front == nullptr) {
+    if (front == nullptr) {
         rear = nullptr;
     }
 
@@ -102,6 +106,7 @@ void WaitingList::display() const {
              << "Student ID: " << current->request.studentID
              << ", Name: " << current->request.studentName
              << ", Resource ID: " << current->request.resourceID
+             << ", Waiting Date: " << current->request.waitingDate
              << endl;
 
         current = current->next;
@@ -121,3 +126,4 @@ void WaitingList::clear() {
     rear = nullptr;
     count = 0;
 }
+
